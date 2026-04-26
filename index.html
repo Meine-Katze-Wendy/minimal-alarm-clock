@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Alarm</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap');
+
     * {
       margin: 0;
       padding: 0;
@@ -12,141 +14,286 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f0f0f;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #080810;
       color: #fff;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
-    .container {
-      text-align: center;
+    /* 背景の光のエフェクト */
+    body::before {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 28px;
+      padding: 56px 64px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 40px;
+      gap: 48px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+      min-width: 380px;
+      position: relative;
+    }
+
+    /* 時計リング */
+    .clock-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .clock-ring {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .clock-ring::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .clock-dot {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: conic-gradient(
+        rgba(99, 102, 241, 0.4) var(--progress, 0deg),
+        transparent var(--progress, 0deg)
+      );
+      mask: radial-gradient(transparent 90px, black 91px);
+      -webkit-mask: radial-gradient(transparent 90px, black 91px);
+      transition: background 0.5s;
     }
 
     .current-time {
-      font-size: 72px;
-      font-weight: 200;
-      letter-spacing: 4px;
+      font-size: 58px;
+      font-weight: 300;
+      letter-spacing: -1px;
       font-variant-numeric: tabular-nums;
+      background: linear-gradient(180deg, #ffffff 60%, rgba(255,255,255,0.5) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      z-index: 1;
     }
 
+    .date-line {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.25);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: -40px;
+      text-align: center;
+    }
+
+    /* アラームセクション */
     .alarm-section {
+      width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
+      gap: 20px;
     }
 
-    .label {
-      font-size: 12px;
-      letter-spacing: 2px;
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      color: #666;
+      color: rgba(255, 255, 255, 0.2);
+    }
+
+    .time-input-wrapper {
+      position: relative;
+      width: 100%;
     }
 
     input[type="time"] {
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid #333;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
       color: #fff;
-      font-size: 36px;
-      font-weight: 200;
+      font-size: 32px;
+      font-weight: 300;
+      font-family: 'Inter', sans-serif;
       text-align: center;
-      padding: 8px 0;
+      padding: 18px;
       outline: none;
       letter-spacing: 2px;
-      width: 180px;
       cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-variant-numeric: tabular-nums;
     }
 
     input[type="time"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      opacity: 0.3;
-      cursor: pointer;
+      display: none;
+    }
+
+    input[type="time"]:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.15);
     }
 
     input[type="time"]:focus {
-      border-bottom-color: #fff;
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.4);
     }
 
+    /* ボタン */
     button {
-      background: transparent;
-      border: 1px solid #333;
-      color: #fff;
-      font-size: 13px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 12px 32px;
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1px;
       cursor: pointer;
       transition: all 0.2s;
-      border-radius: 2px;
+      border: none;
+      outline: none;
     }
 
-    button:hover {
-      border-color: #fff;
+    button.btn-set {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: rgba(165, 167, 255, 1);
     }
 
-    button.active {
-      background: #fff;
-      color: #0f0f0f;
-      border-color: #fff;
+    button.btn-set:hover {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: rgba(99, 102, 241, 0.5);
+      transform: translateY(-1px);
     }
 
+    button.btn-cancel {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    button.btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    button.btn-stop {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    }
+
+    button.btn-stop:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 32px rgba(99, 102, 241, 0.45);
+    }
+
+    /* ステータス */
     .status {
       font-size: 12px;
-      letter-spacing: 1px;
-      color: #444;
+      color: rgba(255, 255, 255, 0.2);
+      letter-spacing: 0.5px;
       height: 16px;
+      text-align: center;
+      transition: color 0.3s;
     }
 
-    .status.set {
-      color: #888;
+    .status.active {
+      color: rgba(165, 167, 255, 0.7);
     }
 
-    body.ringing {
-      animation: flash 0.5s ease-in-out infinite alternate;
+    /* アラーム発火時 */
+    body.ringing::before {
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+      animation: pulse-bg 1s ease-in-out infinite alternate;
     }
 
-    @keyframes flash {
-      from { background: #0f0f0f; }
-      to   { background: #1a1a0a; }
+    body.ringing .card {
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(99, 102, 241, 0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+      animation: ring-card 1s ease-in-out infinite alternate;
     }
 
     body.ringing .current-time {
-      color: #f5c542;
+      background: linear-gradient(180deg, #a5b4fc 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @keyframes pulse-bg {
+      from { opacity: 0.5; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes ring-card {
+      from { box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 40px rgba(99,102,241,0.15), inset 0 1px 0 rgba(255,255,255,0.08); }
+      to   { box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 80px rgba(99,102,241,0.35), inset 0 1px 0 rgba(255,255,255,0.08); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="current-time" id="clock">00:00:00</div>
+  <div class="card">
+    <div class="clock-wrapper">
+      <div class="clock-ring"></div>
+      <div class="clock-dot" id="clock-dot"></div>
+      <div>
+        <div class="current-time" id="clock">00:00:00</div>
+      </div>
+    </div>
+
+    <div class="date-line" id="date-line"></div>
 
     <div class="alarm-section">
-      <div class="label">Alarm</div>
+      <div class="section-label">Alarm</div>
       <input type="time" id="alarm-input" />
-      <button id="toggle-btn">Set</button>
+      <button id="toggle-btn" class="btn-set">Set Alarm</button>
       <div class="status" id="status"></div>
     </div>
   </div>
 
-  <audio id="beep" preload="auto"></audio>
-
   <script>
-    const clockEl   = document.getElementById('clock');
-    const inputEl   = document.getElementById('alarm-input');
-    const btnEl     = document.getElementById('toggle-btn');
-    const statusEl  = document.getElementById('status');
+    const clockEl  = document.getElementById('clock');
+    const dotEl    = document.getElementById('clock-dot');
+    const dateEl   = document.getElementById('date-line');
+    const inputEl  = document.getElementById('alarm-input');
+    const btnEl    = document.getElementById('toggle-btn');
+    const statusEl = document.getElementById('status');
 
-    let alarmTime  = null;
-    let ringing    = false;
-    let audioCtx   = null;
+    const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    let alarmTime    = null;
+    let ringing      = false;
+    let audioCtx     = null;
     let beepInterval = null;
+    let state        = 'idle'; // idle | set | ringing
 
     function tick() {
       const now = new Date();
@@ -155,68 +302,84 @@
       const ss  = String(now.getSeconds()).padStart(2, '0');
       clockEl.textContent = `${hh}:${mm}:${ss}`;
 
+      // 秒針をリングに反映
+      const deg = (now.getSeconds() / 60) * 360;
+      dotEl.style.background = `conic-gradient(rgba(99,102,241,0.5) ${deg}deg, transparent ${deg}deg)`;
+
+      // 日付
+      dateEl.textContent = `${DAYS[now.getDay()]}  ·  ${MONTHS[now.getMonth()]} ${now.getDate()}`;
+
       if (alarmTime && !ringing) {
-        const current = `${hh}:${mm}`;
-        if (current === alarmTime && ss === '00') startRinging();
+        if (`${hh}:${mm}` === alarmTime && ss === '00') startRinging();
       }
     }
 
     function startRinging() {
       ringing = true;
+      state   = 'ringing';
       document.body.classList.add('ringing');
-      statusEl.textContent = 'Wake up!';
-      statusEl.classList.add('set');
-      btnEl.textContent = 'Stop';
-      btnEl.classList.add('active');
-      beepInterval = setInterval(playBeep, 800);
+      statusEl.textContent = '⏰  Wake up!';
+      statusEl.classList.add('active');
+      btnEl.textContent = 'Stop Alarm';
+      btnEl.className   = 'btn-stop';
+      beepInterval = setInterval(playBeep, 900);
       playBeep();
     }
 
     function stopRinging() {
-      ringing    = false;
-      alarmTime  = null;
+      ringing   = false;
+      alarmTime = null;
+      state     = 'idle';
       document.body.classList.remove('ringing');
       clearInterval(beepInterval);
-      btnEl.textContent = 'Set';
-      btnEl.classList.remove('active');
+      btnEl.textContent = 'Set Alarm';
+      btnEl.className   = 'btn-set';
       statusEl.textContent = '';
-      statusEl.classList.remove('set');
+      statusEl.classList.remove('active');
     }
 
     function playBeep() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc  = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.type      = 'sine';
-      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.4);
+      [880, 1100].forEach((freq, i) => {
+        const osc  = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.18);
+        gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.18);
+        gain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + i * 0.18 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.18 + 0.35);
+        osc.start(audioCtx.currentTime + i * 0.18);
+        osc.stop(audioCtx.currentTime + i * 0.18 + 0.35);
+      });
     }
 
     btnEl.addEventListener('click', () => {
-      if (ringing) {
+      if (state === 'ringing') {
         stopRinging();
         return;
       }
-      if (alarmTime) {
+      if (state === 'set') {
         alarmTime = null;
-        btnEl.textContent = 'Set';
-        btnEl.classList.remove('active');
+        state     = 'idle';
+        btnEl.textContent = 'Set Alarm';
+        btnEl.className   = 'btn-set';
         statusEl.textContent = '';
-        statusEl.classList.remove('set');
+        statusEl.classList.remove('active');
         return;
       }
       const val = inputEl.value;
-      if (!val) { statusEl.textContent = 'Please select a time'; return; }
+      if (!val) {
+        statusEl.textContent = 'Please select a time';
+        return;
+      }
       alarmTime = val;
+      state     = 'set';
       btnEl.textContent = 'Cancel';
-      btnEl.classList.add('active');
-      statusEl.textContent = `Set for ${val}`;
-      statusEl.classList.add('set');
+      btnEl.className   = 'btn-cancel';
+      statusEl.textContent = `Alarm set for ${val}`;
+      statusEl.classList.add('active');
     });
 
     setInterval(tick, 1000);
